@@ -24,16 +24,13 @@ body {
 
 /* 점수 스타일 */
 .good {
-    color: white;
-    background-color: green;
+    color: green;
 }
 
 .normal {
-    color: black;
-    background-color: orange;
+    color: orange;
 }
 
 .poor {
-    color: white;
-    background-color: red;
+    color: red;
 }
