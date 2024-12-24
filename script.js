@@ -6,8 +6,8 @@ const idealTemperatures = {
 };
 
 async function saveMidnightTemperature() {
-    const apiKey = 'd5b368726de1a18308d2c8901e175904';
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${apiKey}&units=metric&lang=kr`;
+    const apiKey = 'YOUR_API_KEY'; // OpenWeather 유효한 API 키 입력
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${apiKey}&units=metric`;
 
     try {
         const response = await fetch(url);
@@ -18,9 +18,8 @@ async function saveMidnightTemperature() {
         const data = await response.json();
         const currentTemperature = data.main.temp;
 
-        const now = new Date();
-        const midnight = new Date(now);
-        midnight.setHours(24, 0, 0, 0);
+        const midnight = new Date();
+        midnight.setHours(0, 0, 0, 0);
 
         const midnightTempData = {
             temperature: currentTemperature,
@@ -28,8 +27,9 @@ async function saveMidnightTemperature() {
         };
 
         localStorage.setItem('midnightTemperature', JSON.stringify(midnightTempData));
+        console.log('자정 온도 저장 완료:', midnightTempData);
     } catch (error) {
-        console.error(error);
+        console.error('API 호출 실패:', error);
     }
 }
 
@@ -39,16 +39,22 @@ function getMidnightTemperature() {
         const { temperature, timestamp } = JSON.parse(midnightTempData);
         const now = new Date();
 
-        if (now.getTime() - timestamp >= 24 * 60 * 60 * 1000) {
-            saveMidnightTemperature();
+        const midnight = new Date();
+        midnight.setHours(0, 0, 0, 0);
+
+        // 자정을 기준으로 날짜가 지났는지 확인
+        if (now.getTime() > midnight.getTime() && now.getDate() !== new Date(timestamp).getDate()) {
+            saveMidnightTemperature(); // 새로운 자정 온도 저장
         }
 
         return temperature;
+    } else {
+        saveMidnightTemperature(); // 초기 실행 시 자정 온도 저장
+        return null;
     }
-    return null;
 }
 
-function calculateScore(currentTemperature) {
+function calculateScore(midnightTemperature) {
     const now = new Date();
     let season = '';
     if (now.getMonth() >= 2 && now.getMonth() <= 4) {
@@ -62,15 +68,16 @@ function calculateScore(currentTemperature) {
     }
 
     const idealTemp = idealTemperatures[season];
-    const tempDifference = Math.abs(currentTemperature - idealTemp);
-    const score = Math.max(0, 100 - (tempDifference * 7));
+    const tempDifference = Math.abs(midnightTemperature - idealTemp);
+    const score = Math.max(0, 100 - (tempDifference * 5));
     return score.toFixed(2);
 }
 
 function updateScoreDisplay(score) {
     const scoreElement = document.getElementById('score');
-    scoreElement.innerText = `Score: ${score}`;
+    scoreElement.innerText = `점수: ${score}`;
 
+    scoreElement.className = ''; // 기존 클래스 초기화
     if (score >= 80) {
         scoreElement.classList.add('good');
     } else if (score >= 50) {
@@ -90,5 +97,3 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('score').innerText = "자정 온도가 아직 저장되지 않았습니다.";
     }
 });
-
-saveMidnightTemperature();
