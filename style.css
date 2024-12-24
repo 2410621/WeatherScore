@@ -22,7 +22,7 @@ body {
     display: inline-block;
 }
 
-/* 점수 스타일 */
+/* 점수 스타일 (글자색만 변경) */
 .good {
     color: green;
 }
