@@ -6,7 +6,7 @@ const idealTemperatures = {
 };
 
 async function saveMidnightTemperature() {
-    const apiKey = 'YOUR_API_KEY'; // OpenWeather 유효한 API 키 입력
+    const apiKey = 'd5b368726de1a18308d2c8901e175904'; // OpenWeather 유효한 API 키 입력
     const url = `https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${apiKey}&units=metric`;
 
     try {
